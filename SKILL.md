@@ -1,12 +1,14 @@
 ---
 name: scheduled-desktop-reminder
-description: 把训练/健康类提醒做成真正的本机桌面定时弹窗（Windows 计划任务、macOS launchd、Linux cron 三平台）。当用户要求在固定时间点提醒自己做某套动作时应使用本技能——典型场景包括工位核心训练、久坐拉伸、眼保健操、喝水起身、按医嘱用药、键盘手放松等；也适用于用户给出作息时间并要求「按节点排一份训练计划并定时推送」。英文场景可匹配 desk exercise reminder、scheduled popup reminder、stretch break timer。
+description: 把训练/健康类提醒做成真正的本机桌面定时弹窗（Windows 计划任务、macOS launchd、Linux cron 三平台）。当用户要求在固定时间点提醒自己做某套动作时应使用本技能——典型场景包括工位核心训练、久坐拉伸、眼保健操、喝水起身、按医嘱用药、键盘手放松等；也适用于用户给出作息时间并要求「按节点排一份训练计划并定时推送」。英文场景可匹配 desk exercise reminder、scheduled popup reminder、stretch break timer。项目展示名「搬砖私教」，用户以此名提及本工具时同样适用。
 agent_created: true
 ---
 
 # 定时桌面提醒
 
 ## 概述
+
+（项目展示名「搬砖私教」，仓库 <https://gitee.com/vnimy/scheduled-desktop-reminder>。技术名仍为 `scheduled-desktop-reminder`。）
 
 把一份「提醒计划」装成本机的系统级定时任务，到点弹出可读的完整操作说明。全程离线，不依赖任何在线链路。
 
