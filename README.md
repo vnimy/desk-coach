@@ -74,12 +74,72 @@
 - `reminder.py` —— 引擎：读配置、匹配日程、渲染弹窗
 - `state.json` —— 只存运行状态（开关、暂停、任务名）
 
+## 安装技能
+
+### 最省事的装法：把链接贴给 AI
+
+技能就是一堆纯文本和一个 Python 脚本，没有依赖要装。所以**不用按步骤来**，打开你平时用的 AI 工具（WorkBuddy / DSH / OpenCode / Claude Code 都行），新建一个会话，把下面这段贴进去：
+
+> 帮我安装这个技能：https://gitee.com/vnimy/desk-coach
+>
+> 要求：
+> 1. 克隆整个仓库到你的用户级技能目录，目录名保持 `desk-coach`
+> 2. 装好后告诉我技能名，确认你能识别到它
+> 3. 先别启动提醒 —— 我接着会提训练需求，那时再装
+
+它会自己判断放哪个目录、检查文件是否齐全。**这一步最容易出错的不是技术，而是放错目录或把目录改错名**，交给它做比自己复制粘贴稳。
+
+装完直接接着说需求就能用，例如：「用搬砖私教帮我在工位上排一套缓解久坐腰痛的提醒」。它会开始追问四要素 —— 问起来了，就说明装成功、也被它认出来了。
+
+### 各工具的技能目录
+
+AI 会自己判断，这里列出来是给你核对用的：
+
+| 工具 | 用户级（所有项目都能用） | 项目级（只在这个仓库里用） |
+|---|---|---|
+| **WorkBuddy** | `~/.workbuddy/skills/` | `<项目>/.workbuddy/skills/` |
+| **DSH** | `~/.dsh/skills/` | 插件自带 `skills/`（随插件分发） |
+| **OpenCode** | `~/.config/opencode/skills/` | `.opencode/skills/`；也认 `.claude/skills/`、`.agents/skills/` |
+| **Claude Code** | `~/.claude/skills/` | `.claude/skills/` |
+
+> Windows 上 `~` 就是 `C:\Users\<你的用户名>`。
+
+**这些工具共用同一套技能约定**（`SKILL.md` + 头部 `name` / `description` 字段），所以同一份技能能同时装进好几个工具，不用改内容。
+唯一要守的规矩是：**目录名必须和 `SKILL.md` 里声明的 `name` 一致** —— 本项目两个都是 `desk-coach`。
+
+### 不想让 AI 装，手工三步
+
+```bash
+# 1. 克隆
+git clone https://gitee.com/vnimy/desk-coach.git
+
+# 2. 整个目录放进技能目录（按上表选一个），目录名保持 desk-coach
+cp -r desk-coach ~/.workbuddy/skills/
+
+# 3. 确认目录结构：desk-coach/SKILL.md 应当存在
+ls ~/.workbuddy/skills/desk-coach/SKILL.md
+```
+
+### 装上 ≠ 开始提醒
+
+这两件事分开的，别混：
+
+| 动作 | 结果 |
+|---|---|
+| 安装技能 | AI 从此知道有这么个工具，**但不会自己弹任何提醒** |
+| 提出训练需求、让它装好计划 | 这时才注册开机自启、启动服务，提醒开始生效 |
+
+所以装完技能先别急着期待弹窗 —— 还差一句需求。反过来也一样：换一套训练计划不用重装技能。
+
+> 想停掉提醒、或者干脆不要这个技能了，看下面《常见问题》里的「怎么彻底卸载」。
+> **删技能目录之前一定要先卸载**，否则每次开机登录都会尝试启动一个已经不存在的脚本而报错。
+
 ## 怎么用：跟它说一句话就行
 
 **这一节面向使用者。** 你不必写 JSON、也不必敲命令 —— 把要求说清楚，剩下的交给技能。
 本章按三件事展开：怎么提锻炼需求、技能会替你做什么、日常怎么管这些定时任务。
 
-> 手上还没有技能？见下一节《快速开始》。走一遍装上，再回来读这章。
+> 手上还没有技能？见上一节《安装技能》—— 一句话就能装上。
 
 ### 一、怎么提锻炼需求
 
@@ -156,16 +216,11 @@
 
 ### 安装
 
-克隆或下载本仓库，然后整个放进技能目录（**目录名保持 `desk-coach`**，技能靠目录名识别，与 `SKILL.md` 里声明的名字一致）：
+一句话装法见上面《安装技能》。手工的话，克隆下来整个放进你那个工具的技能目录（目录名保持 `desk-coach`）：
 
 ```bash
 git clone https://gitee.com/vnimy/desk-coach.git
-
-# 用户级（所有项目可用）
-cp -r desk-coach ~/.workbuddy/skills/
-
-# 或项目级
-cp -r desk-coach <项目>/.workbuddy/skills/
+cp -r desk-coach ~/.workbuddy/skills/          # 换成你那个工具的技能目录
 ```
 
 > 本项目 2026-10-15 前的技能名是 `scheduled-desktop-reminder`。如果你装过旧版，请先按下方「卸载」清掉旧任务，再用新名字装一遍。
@@ -419,6 +474,16 @@ python scripts/service.py cleanup --dry-run            # 先预演，看会删�
 
 自己给项目换名字的话，记得同步这三处：`SKILL.md` 的 `name:`、目录名、以及
 `assets/cleanup.ps1` 与 `scripts/reminder.py` 里的识别名单（`$needles` / `SKILL_IDS`）。
+
+**装了技能，但 AI 说没找到它？**
+
+按顺序查：
+
+1. **目录名和 `SKILL.md` 的 `name` 是否一致** —— 两者都必须是 `desk-coach`，这是最常见的错
+2. **`SKILL.md` 是否直接躺在 `desk-coach/` 下**，且文件名全大写 —— 别多套一层目录（`desk-coach/desk-coach/SKILL.md` 是错的）
+3. **放对工具了吗** —— 装进 OpenCode 的目录，WorkBuddy 是看不到的，各家不互通，各装各的
+4. **OpenCode 用户额外查权限** —— `opencode.json` 里 `permission.skill` 若有规则把它 `deny` 掉，技能会被隐藏
+5. **WorkBuddy 的技能列表有缓存** —— 它按目录签名自动失效重建，刚改过文件名或目录名时，重开一次会话即可
 
 ## 许可
 
