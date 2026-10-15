@@ -343,4 +343,4 @@ python scripts/service.py cleanup --dry-run            # 先预演，看会删�
 
 ## 许可
 
-个人使用，自由取用。
+[MIT](LICENSE) © 2026 杨嘉祥 —— 随意取用、修改、分发。
