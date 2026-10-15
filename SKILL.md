@@ -1,16 +1,21 @@
 ---
-name: scheduled-desktop-reminder
+name: desk-coach
 description: 把训练/健康类提醒做成真正的本机桌面定时弹窗（Windows 计划任务、macOS launchd、Linux cron 三平台）。当用户要求在固定时间点提醒自己做某套动作时应使用本技能——典型场景包括工位核心训练、久坐拉伸、眼保健操、喝水起身、按医嘱用药、键盘手放松等；也适用于用户给出作息时间并要求「按节点排一份训练计划并定时推送」。英文场景可匹配 desk exercise reminder、scheduled popup reminder、stretch break timer。项目展示名「搬砖私教」，用户以此名提及本工具时同样适用。
 agent_created: true
 ---
 
-# 定时桌面提醒
+# 搬砖私教（desk-coach）
 
 ## 概述
 
-（项目展示名「搬砖私教」，仓库 <https://gitee.com/vnimy/desk-coach>。技能目录名与技术标识仍为 `scheduled-desktop-reminder`，不要改动 —— 计划任务与清理脚本都指向该路径。）
-
 把一份「提醒计划」装成本机的系统级定时任务，到点弹出可读的完整操作说明。全程离线，不依赖任何在线链路。
+
+- 项目展示名：**搬砖私教**
+- 仓库：<https://gitee.com/vnimy/desk-coach>
+- 技能名与目录名：`desk-coach`（**两者必须一致**，技能系统靠目录名识别）
+
+> 历史名称为 `scheduled-desktop-reminder`，2026-10-15 更名为 `desk-coach`。
+> 更名前的残留（旧计划任务、Linux crontab 里的旧标记）由清理脚本按**新旧双名**识别，见「卸载」一节。
 
 本技能服务于两类请求：一是用户已有一套动作、要求定时提醒；二是用户给出目标和作息、要求编排内容并装上。后者涉及的内容编排原则见 `references/training-design.md`。
 
@@ -168,8 +173,17 @@ Linux/macOS 用户给等价的一行命令即可。
 第 3 层是关键：**安装时会自动把清理脚本复制一份到用户的配置目录**（见 `write_uninstall_entry`）。
 因为用户最可能的顺序是「先删技能目录 → 后来才想起卸载」，那时技能里的脚本已经没了。
 
-清理脚本靠**扫描任务动作里的脚本路径**来识别（匹配 `scheduled-desktop-reminder` 字样），
-**不依赖 `state.json`**，所以配置文件丢了也照样能清干净。
+清理脚本靠**扫描任务动作里的脚本路径**来识别，**不依赖 `state.json`**，所以配置文件丢了也照样能清干净。
+
+它同时认**新旧两个技能名**（`desk-coach` 与历史名 `scheduled-desktop-reminder`），
+所以 2026-10-15 改名之前注册的任务也能被清掉。改技能名时要同步更新这两处：
+
+- `assets/cleanup.ps1` 的 `$needles`
+- `scripts/reminder.py` 的 `SKILL_IDS`（Linux 的 cron 标记也由它派生）
+
+**改技能名还会连带影响**：技能目录名必须同步改（技能系统按目录名识别），
+且必须重新 `install` 一次 —— 计划任务里记录的是旧路径，不重注册就会指向已不存在的脚本，
+开机登录必然报错。改名后的迁移步骤见 `references/plan-schema.md` 的坑清单第 27 条。
 
 向用户交付时，必须明确告诉他卸载入口在哪、怎么用。**不要只在文档里写，要在交付说明里点出来** —— 用户不会翻文档，但会记住"双击那个 bat"。
 

@@ -17,7 +17,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$needle = "scheduled-desktop-reminder"
+# Identify our tasks by matching the script path recorded in the task action.
+# Both the current and the historical skill names are accepted, so residue created
+# before the 2026-10-15 rename (scheduled-desktop-reminder -> desk-coach) is still
+# cleaned up. Keep this list in sync with reminder.py's SKILL_IDS.
+$needles = @("desk-coach", "scheduled-desktop-reminder")
 $removed = @()
 $found = @()
 
@@ -26,7 +30,10 @@ foreach ($task in (Get-ScheduledTask -ErrorAction SilentlyContinue)) {
 	foreach ($action in $task.Actions) {
 		# Execute holds the interpreter, Arguments holds the script path
 		$text = [string]$action.Execute + " " + [string]$action.Arguments
-		if ($text -like "*$needle*") { $hit = $true; break }
+		foreach ($n in $needles) {
+			if ($text -like "*$n*") { $hit = $true; break }
+		}
+		if ($hit) { break }
 	}
 	if (-not $hit) { continue }
 
@@ -49,7 +56,12 @@ foreach ($task in (Get-ScheduledTask -ErrorAction SilentlyContinue)) {
 $killed = 0
 if (-not $DryRun) {
 	$procs = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
-		$_.Name -like "python*" -and $_.CommandLine -like "*$needle*"
+		if ($_.Name -notlike "python*") { return $false }
+		$cl = [string]$_.CommandLine
+		foreach ($n in $needles) {
+			if ($cl -like "*$n*") { return $true }
+		}
+		return $false
 	}
 	foreach ($p in $procs) {
 		try {

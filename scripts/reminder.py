@@ -595,8 +595,13 @@ def install_macos(plan, plan_path, name, schedule, dry_run):
 
 # ---------------------------------------------------------------- Linux 注册
 
-CRON_BEGIN = "# BEGIN scheduled-desktop-reminder:%s"
-CRON_END = "# END scheduled-desktop-reminder:%s"
+# 技能的历史名与现名。清理与识别逻辑按这两个名字一起匹配，这样 2026-10-15
+# 改名（scheduled-desktop-reminder -> desk-coach）之前留下的残留也能被清掉。
+# 改动这里时，记得同步 assets/cleanup.ps1 里的 $needles。
+SKILL_IDS = ("desk-coach", "scheduled-desktop-reminder")
+
+CRON_BEGIN = "# BEGIN %s:%%s" % SKILL_IDS[0]
+CRON_END = "# END %s:%%s" % SKILL_IDS[0]
 
 
 def install_linux(plan, plan_path, name, schedule, dry_run):
@@ -625,13 +630,28 @@ def _q(text):
 	return "'%s'" % text if " " in text else text
 
 
+def _cron_markers(name):
+	"""返回该计划可能用过的所有 BEGIN/END 标记（含历史技能名产生的旧标记）。
+
+	改名后如果只认新标记，升级用户 crontab 里的旧块就清不掉，会与新块并存、
+	导致每条提醒弹两次。所以两种都认。
+	"""
+	begins, ends = set(), set()
+	for skill_id in SKILL_IDS:
+		begins.add("# BEGIN %s:%s" % (skill_id, name))
+		ends.add("# END %s:%s" % (skill_id, name))
+	return begins, ends
+
+
 def _strip_block(crontab, name):
+	begins, ends = _cron_markers(name)
 	out, skip = [], False
 	for line in crontab.splitlines():
-		if line.strip() == CRON_BEGIN % name:
+		stripped = line.strip()
+		if stripped in begins:
 			skip = True
 			continue
-		if line.strip() == CRON_END % name:
+		if stripped in ends:
 			skip = False
 			continue
 		if not skip:
@@ -723,14 +743,15 @@ def write_uninstall_entry(plan_dir):
 # 自包含，不依赖技能目录是否还在。
 set -u
 
-NEEDLE="scheduled-desktop-reminder"
+NEEDLES="desk-coach scheduled-desktop-reminder"
 
+# 两个名字都认（兼容 2026-10-15 改名前的残留）
 # macOS: 删除指向本技能的 LaunchAgent
 AGENTS="$HOME/Library/LaunchAgents"
 if [ -d "$AGENTS" ]; then
 	for f in "$AGENTS"/*.plist; do
 		[ -f "$f" ] || continue
-		if grep -q "$NEEDLE" "$f" 2>/dev/null; then
+		if grep -q -e "desk-coach" -e "scheduled-desktop-reminder" "$f" 2>/dev/null; then
 			launchctl unload "$f" 2>/dev/null
 			rm -f "$f"
 			echo "已移除 $f"
@@ -740,14 +761,18 @@ fi
 
 # Linux: 清掉 crontab 中指向本技能的条目
 if command -v crontab >/dev/null 2>&1; then
-	if crontab -l 2>/dev/null | grep -q "$NEEDLE"; then
-		crontab -l 2>/dev/null | grep -v "$NEEDLE" | crontab -
+	before=$(crontab -l 2>/dev/null)
+	after=$(printf '%s\n' "$before" | grep -v -e "desk-coach" -e "scheduled-desktop-reminder")
+	if [ "$before" != "$after" ]; then
+		printf '%s\n' "$after" | crontab -
 		echo "已清理 crontab 中的相关条目"
 	fi
 fi
 
 # 结束仍在运行的服务进程
-pkill -f "$NEEDLE" 2>/dev/null && echo "已结束相关进程"
+for n in $NEEDLES; do
+	pkill -f "$n" 2>/dev/null && echo "已结束相关进程（$n）"
+done
 
 echo "清理完成。"
 """,
@@ -843,12 +868,14 @@ def cmd_status(args):
 		print("plist=%s  %s" % (plist, "存在" if plist.exists() else "不存在"))
 	else:
 		current = run(["crontab", "-l"])
+		begins, ends = _cron_markers(name)
 		inside = False
 		for line in (current["out"] if current["code"] == 0 else "").splitlines():
-			if line.strip() == CRON_BEGIN % name:
+			stripped = line.strip()
+			if stripped in begins:
 				inside = True
 				continue
-			if line.strip() == CRON_END % name:
+			if stripped in ends:
 				inside = False
 				continue
 			if inside:

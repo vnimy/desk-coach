@@ -83,21 +83,19 @@
 
 ### 安装
 
-克隆或下载本仓库，然后把它放进技能目录。**注意技能目录名要保持 `scheduled-desktop-reminder`**
-（技能靠目录名识别，所以你 clone 下来的 `desk-coach` 目录需要改名）：
+克隆或下载本仓库，然后整个放进技能目录（**目录名保持 `desk-coach`**，技能靠目录名识别，与 `SKILL.md` 里声明的名字一致）：
 
 ```bash
 git clone https://gitee.com/vnimy/desk-coach.git
-mv desk-coach scheduled-desktop-reminder
 
 # 用户级（所有项目可用）
-cp -r scheduled-desktop-reminder ~/.workbuddy/skills/
+cp -r desk-coach ~/.workbuddy/skills/
 
 # 或项目级
-cp -r scheduled-desktop-reminder <项目>/.workbuddy/skills/
+cp -r desk-coach <项目>/.workbuddy/skills/
 ```
 
-> `desk-coach` 是项目名（展示用），`scheduled-desktop-reminder` 是技能要用的目录名。两者不一致是刻意的：仓库名负责好记好看，目录名要跟技能声明保持一致。
+> 本项目 2026-10-15 前的技能名是 `scheduled-desktop-reminder`。如果你装过旧版，请先按下方「卸载」清掉旧任务，再用新名字装一遍。
 
 ### 配置
 
@@ -222,12 +220,13 @@ python scripts/reminder.py uninstall --name MyReminder        # 卸载
 
 ## 目录结构
 
-仓库名是 `desk-coach`，但放进技能目录后需要叫 `scheduled-desktop-reminder`（原因见「安装」）：
+仓库名、技能名、目录名统一为 `desk-coach`：
 
 ```
-desk-coach/  （技能目录里则是 scheduled-desktop-reminder/）
+desk-coach/
 ├── SKILL.md                        技能说明（供 AI 读取的工作流）
 ├── README.md                       本文件
+├── LICENSE                         MIT
 ├── scripts/
 │   ├── service.py                  常驻服务：定时线程 + HTTP + 页面渲染
 │   └── reminder.py                 引擎：读配置、匹配日程、渲染弹窗
@@ -332,14 +331,19 @@ python scripts/service.py cleanup --dry-run            # 先预演，看会删�
 > 因为卸载最容易被忽略的时间点是「你先删了技能目录、后来才想起卸载」。这时脚本已经没有了，系统里注册的计划任务就成了孤儿——**每次开机登录都会尝试启动一个不存在的脚本而报错**。
 > 所以清理能力在安装时就复制了一份到你的配置目录，它不依赖技能是否还在。清理脚本按「任务动作里记录的脚本路径」来识别，所以哪怕技能目录已经删除，它照样能找到并清理干净。
 
-**为什么仓库叫 `desk-coach`，技能目录却要叫 `scheduled-desktop-reminder`？**
+**改名会不会影响已经装好的？**
 
-两者分工不同：
+本项目的技能名在 2026-10-15 由 `scheduled-desktop-reminder` 改为 `desk-coach`。改名不是单纯重命名，因为**计划任务里记录的是脚本的绝对路径**：
 
-- **仓库名 `desk-coach`** —— 对外展示，好记、有画面感（desk=工位，coach=教练）
-- **技能目录名 `scheduled-desktop-reminder`** —— 对内使用，必须与 `SKILL.md` 里声明的技能名一致，技能系统靠它识别；系统里的计划任务、清理脚本也都指向这个路径
+| 影响项 | 处理 |
+|---|---|
+| 计划任务 | 路径失效，**必须重新 `install` 一次**，否则开机登录会报错 |
+| 技能目录 | 要跟着改名（技能系统按目录名识别） |
+| 清理脚本的识别标记 | 已改为**同时认新旧两个名字**，所以改名前的残留照样能清掉 |
+| Linux crontab | 旧标记同样被认得，不会残留重复块 |
 
-所以 clone 下来后要改个名再放进技能目录，见上方「安装」。仓库名可以随喜好改，技能目录名不要动 —— 改了会让已注册的计划任务失联。
+自己给项目换名字的话，记得同步这三处：`SKILL.md` 的 `name:`、目录名、以及
+`assets/cleanup.ps1` 与 `scripts/reminder.py` 里的识别名单（`$needles` / `SKILL_IDS`）。
 
 ## 许可
 
