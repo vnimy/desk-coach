@@ -264,4 +264,4 @@ Windows 窗体渲染器（PowerShell + WinForms）。含「日程表」按钮和
 ### references/plan-schema.md
 
 数据结构（`actions` + `slots` 两层、`page` 页面内容）、state.json 状态说明、命令参考、
-弹窗交互与退出码，以及 **22 条**已踩过的坑。**修改脚本或配置前必读。**
+弹窗交互与退出码，以及 **27 条**已踩过的坑。**修改脚本或配置前必读。**
