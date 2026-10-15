@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+<style>
+	:root {
+		--page: #F7F7F5;
+		--card: #FFFFFF;
+		--text: #2C2C2A;
+		--muted: #5F5E5A;
+		--hint: #888780;
+		--line: #E5E3DC;
+		--blue: #185FA5;   --blue-bg: #E6F1FB;
+		--teal: #0F6E56;   --teal-bg: #E1F5EE;
+		--purple: #534AB7; --purple-bg: #EEEDFE;
+		--amber: #BA7517;  --amber-bg: #FAEEDA;
+		--gray: #5F5E5A;   --gray-bg: #F1EFE8;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		padding: 40px 20px 64px;
+		background: var(--page);
+		color: var(--text);
+		font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+		font-size: 14px;
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+	}
+	.wrap { max-width: 880px; margin: 0 auto; }
+
+	header { margin-bottom: 32px; }
+	h1 { font-size: 26px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+	.sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+	.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+	.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+	.stat b { display: block; font-size: 22px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+	.stat span { display: block; font-size: 12.5px; color: var(--hint); margin-top: 4px; }
+
+	section { margin-top: 36px; }
+	h2 { font-size: 15px; font-weight: 600; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; }
+	h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+	.tl { display: block; }
+	.row { display: grid; grid-template-columns: 62px 26px 1fr; padding-bottom: 12px; }
+	.row:last-child { padding-bottom: 0; }
+
+	.t { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 13px; color: var(--muted); text-align: right; padding-top: 15px; letter-spacing: -0.02em; }
+	.rail { position: relative; }
+	.rail::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line); }
+	.row:first-child .rail::before { top: 21px; }
+	.row:last-child .rail::before { bottom: auto; height: 21px; }
+	.dot { position: absolute; left: 50%; top: 15px; width: 11px; height: 11px; border-radius: 50%; background: var(--c, var(--blue)); border: 2px solid var(--page); transform: translateX(-50%); }
+
+	.card { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--c, var(--blue)); border-radius: 10px; padding: 13px 16px 14px; }
+	.ch { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 5px; }
+	.cn { font-size: 15px; font-weight: 600; }
+	.dose { font-size: 12px; font-weight: 500; color: var(--c, var(--blue)); background: var(--cbg, var(--blue-bg)); padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+	.cue { margin: 0; font-size: 13px; color: var(--muted); }
+	.badge { display: block; margin-top: 5px; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0; padding: 2px 6px; border-radius: 99px; background: #0F6E56; color: #fff; white-space: nowrap; }
+	.badge.manual { background: #E4EAF2; color: #4A6785; }
+	.meta { display: flex; align-items: center; gap: 14px; margin-top: 7px; font-size: 11.5px; color: var(--hint); }
+	.vis { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; }
+	.vis i { width: 6px; height: 6px; border-radius: 50%; background: var(--c, var(--blue)); opacity: .8; }
+	.vis i.off { background: #D3D1C7; opacity: 1; }
+
+	.rest { margin: 4px 0 20px; border: 1px dashed #C9C6BC; border-radius: 10px; padding: 12px 16px; background: #FBFAF7; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+	.rest strong { font-size: 13.5px; font-weight: 600; }
+	.rest span { font-size: 12.5px; color: var(--hint); }
+
+	.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+	.panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+	.panel h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 10px; }
+	.panel ul { margin: 0; padding-left: 18px; }
+	.panel li { font-size: 13px; color: var(--muted); margin-bottom: 7px; }
+	.panel li:last-child { margin-bottom: 0; }
+	.panel li b { color: var(--text); font-weight: 600; }
+
+	.principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+	.p { border-radius: 12px; padding: 13px 15px; background: var(--blue-bg); border: 1px solid #B5D4F4; }
+	.p b { display: block; font-size: 13.5px; font-weight: 600; color: #0C447C; }
+	.p span { display: block; font-size: 12px; color: var(--blue); margin-top: 3px; }
+
+	.note { font-size: 12px; color: var(--hint); margin-top: 10px; }
+
+	.howto { display: grid; gap: 14px; }
+	.ht { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--c, var(--blue)); border-radius: 10px; padding: 16px 18px 17px; }
+	.hth { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 11px; }
+	.htn { font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 600; color: var(--c, var(--blue)); background: var(--cbg, var(--blue-bg)); border-radius: 6px; padding: 2px 7px; }
+	.htname { font-size: 15.5px; font-weight: 600; }
+	.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+	.steps li { position: relative; padding-left: 26px; font-size: 13.5px; color: var(--muted); line-height: 1.65; margin-bottom: 7px; }
+	.steps li:last-child { margin-bottom: 0; }
+	.steps li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 2px; width: 17px; height: 17px; border-radius: 50%; background: var(--cbg, var(--blue-bg)); color: var(--c, var(--blue)); font-size: 11px; font-weight: 600; line-height: 17px; text-align: center; }
+	.trap { margin-top: 11px; padding: 9px 12px; border-radius: 8px; background: #FAEEDA; border: 1px solid #FAC775; font-size: 12.5px; color: #854F0B; line-height: 1.6; }
+	.trap b { font-weight: 600; color: #633806; }
+
+	.switch { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+	.sw { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 9px; font-size: 14px; font-weight: 600; text-decoration: none; border: 1px solid; cursor: pointer; font-family: inherit; transition: opacity .15s; }
+	.sw::before { font-size: 11px; }
+	.sw:hover { opacity: .82; }
+	.sw[disabled] { opacity: .4; cursor: not-allowed; }
+	.sw.pause { background: #FDF2E9; color: #9C4A22; border-color: #EFD3B9; }
+	.sw.pause::before { content: "❙❙"; letter-spacing: -1px; }
+	.sw.resume { background: #E6F4EF; color: #0F6E56; border-color: #BEE0D4; }
+	.sw.resume::before { content: "▶"; }
+	.swhint { font-size: 12px; color: var(--hint); line-height: 1.6; }
+	.svc { display: flex; align-items: center; gap: 9px; padding: 12px 16px; border-radius: 10px; background: var(--card); border: 1px solid var(--line); font-size: 13px; margin-bottom: 14px; }
+	.svc .sdot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+	.svc.on .sdot { background: #1A9E75; box-shadow: 0 0 0 3px #D6EFE5; }
+	.svc.off .sdot { background: #C4C2BA; box-shadow: 0 0 0 3px #EFEEE9; }
+	.svc b { font-weight: 700; }
+	.svc .meta { color: var(--hint); font-size: 12px; margin-left: auto; text-align: right; line-height: 1.5; }
+	.slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+	.slot { display: inline-flex; align-items: stretch; border: 1px solid var(--line); background: var(--card); border-radius: 9px; overflow: hidden; font-size: 13px; }
+	.slot:hover { border-color: #BFC7CF; }
+	.slot.off { opacity: .45; }
+	.slot .hit { display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px 9px 12px; border: 0; background: transparent; cursor: pointer; font-family: inherit; font-size: 13px; color: inherit; }
+	.slot .hit:hover { background: #F4F7F9; }
+	.slot .st { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; color: var(--muted); }
+	.slot .s { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: #1A9E75; }
+	.slot.manual .s { background: #7D9AB8; }
+	.slot.off .s { background: #C4C2BA; }
+	.slot .tag { font-size: 10px; padding: 1px 6px; border-radius: 99px; background: #E6F4EF; color: #0F6E56; font-weight: 600; }
+	.slot.manual .tag { background: #E9EEF4; color: #4A6785; }
+	.slot .tg { border: 0; border-left: 1px solid var(--line); background: transparent; cursor: pointer; padding: 0 10px; font-size: 13px; color: var(--hint); font-family: inherit; }
+	.slot .tg:hover { background: #F1F0EC; color: #6E6E6B; }
+	.slot .tg.on { color: #1A9E75; }
+	.toast { padding: 10px 15px; border-radius: 8px; font-size: 13px; margin-top: 12px; display: none; }
+	.toast.show { display: block; }
+	.toast.ok { background: #E6F4EF; color: #0F6E56; }
+	.toast.err { background: #FDECE8; color: #9C3A22; }
+
+	@media print {
+		body { background: #fff; padding: 0; font-size: 12px; }
+		.card, .stat, .panel { break-inside: avoid; }
+		section { margin-top: 22px; }
+	}
+	@media (max-width: 620px) {
+		.stats, .cols, .principles { grid-template-columns: 1fr; }
+		.row { grid-template-columns: 52px 22px 1fr; }
+	}
+</style>
+</head>
+<body>
+<div class="wrap">
+	<header>
+		<h1 id="pageTitle"></h1>
+		<p class="sub" id="pageSub"></p>
+		<div class="stats" id="pageStats"></div>
+		<p class="note" id="badgeNote"></p>
+	</header>
+
+	<section>
+		<h2>提醒开关</h2>
+		<div class="svc off" id="svcBar">
+			<span class="sdot"></span>
+			<span id="svcText"><b>正在连接服务…</b></span>
+			<span class="meta" id="svcMeta"></span>
+		</div>
+		<div class="switch">
+			<button class="sw pause" id="btnPause" disabled>暂停今日提醒</button>
+			<button class="sw resume" id="btnResume" disabled>恢复提醒</button>
+			<span class="swhint">下方每个时间点都可以<b>直接点开提醒框</b>补做，不必等到点。<br>暂停只影响今天，各时间点的排期不会被删除。</span>
+		</div>
+		<div class="slots" id="slotList"></div>
+		<div class="toast" id="toast"></div>
+		<p class="note"><b>点环节主体</b>（时间 + 动作名）＝ 立即弹出它的提醒框，任何时候都能补做；<b>点右侧的 ● / ○</b> ＝ 单独开启 / 关闭这个环节（效果同弹窗里的「不再提醒」，● 绿为开启、○ 灰为关闭）。</p>
+		<p class="note">这份页面的内容全部来自 <code>plan.json</code>，服务每次打开页面时重新读取 —— <b>改完 plan 刷新即见，不用重启服务</b>。提醒时间由服务的内置定时器负责，启动服务即开启提醒、停止即整体停用。</p>
+	</section>
+
+	<section id="principlesSection">
+		<h2>三条原则</h2>
+		<div class="principles" id="principles"></div>
+	</section>
+
+	<section id="morningSection">
+		<h2 id="morningTitle"></h2>
+		<div class="tl" id="morningList"></div>
+	</section>
+
+	<section id="breakSection">
+		<h2 id="breakTitle"></h2>
+		<div class="rest" id="breakBody"></div>
+	</section>
+
+	<section id="afternoonSection">
+		<h2 id="afternoonTitle"></h2>
+		<div class="tl" id="afternoonList"></div>
+	</section>
+
+	<section id="howtoSection">
+		<h2 id="howtoTitle"></h2>
+		<div class="howto" id="howtoList"></div>
+	</section>
+
+	<section id="panelsSection">
+		<h2 id="panelsTitle">避坑 · 与专项补充</h2>
+		<div class="cols" id="panels"></div>
+		<p class="note" id="warning"></p>
+	</section>
+</div>
+
+<script>
+// 页面数据由服务在返回本文件时注入（见 service.py 的 render_page）。
+// 这一行是注入点：服务会把它替换成真实数据；以 file:// 直接打开时保持 null，
+// 此时下面的启动逻辑会回落到向 localhost 拉取 /api/plan。
+window.__PLAN__ = null;
+
+var PLAN = window.__PLAN__ || null;
+var API = location.protocol.indexOf("http") === 0 ? "" : "http://127.0.0.1:8768";
+
+var COLORS = {
+	blue:   ["#185FA5", "#E6F1FB"],
+	teal:   ["#0F6E56", "#E1F5EE"],
+	purple: ["#534AB7", "#EEEDFE"],
+	amber:  ["#BA7517", "#FAEEDA"],
+	gray:   ["#5F5E5A", "#F1EFE8"]
+};
+
+var $ = function (id) { return document.getElementById(id); };
+
+function palette(key) { return COLORS[key] || COLORS.blue; }
+function esc(text) {
+	return String(text == null ? "" : text)
+		.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
+}
+
+// 把时间点上的动作引用展开，得到该条提醒的完整文案
+function expand(slot) {
+	var act = (PLAN.actions || {})[slot.action] || {};
+	return {
+		id: slot.id,
+		time: slot.time,
+		name: slot.name || act.name || "",
+		dose: slot.dose || act.dose || "",
+		doseFull: act.dose || slot.dose || "",
+		muscles: slot.muscles || act.muscles || "",
+		color: slot.color || act.color || "blue",
+		cue: slot.cue || "",
+		visibility: slot.visibility == null ? 5 : slot.visibility,
+		steps: slot.steps || act.steps || [],
+		trap: slot.trap || act.trap || "",
+		manual: !!slot.manual
+	};
+}
+
+function renderHeader() {
+	var page = PLAN.page || {};
+	$("pageTitle").textContent = PLAN.title || "";
+	$("pageSub").textContent = PLAN.subtitle || "";
+
+	var total = PLAN.slots.length;
+	var autoCount = PLAN.slots.filter(function (s) { return !s.manual; }).length;
+	var manualCount = total - autoCount;
+
+	$("pageStats").innerHTML = (page.stats || []).map(function (stat) {
+		var value = stat.auto === "count" ? (total + " 个") : (stat.value || "");
+		return '<div class="stat"><b>' + esc(value) + '</b><span>' + esc(stat.label) + '</span></div>';
+	}).join("");
+
+	$("badgeNote").innerHTML = '时间左边的标签说明：'
+		+ '<b style="color:#0F6E56">绿色「自动弹」</b>= 到点自己弹窗（工作日 ' + autoCount + ' 个，是全天骨架）；'
+		+ '<b style="color:#4A6785">蓝色「手动补做」</b>= 不自动弹，想练的时候在下方点一下即可（' + manualCount + ' 个，是加分项）。'
+		+ '<b>全 ' + total + ' 个时间点的提醒框都能手动调出来</b>，见上方「提醒开关」。';
+}
+
+function renderPrinciples() {
+	var list = (PLAN.page || {}).principles || [];
+	if (!list.length) { $("principlesSection").style.display = "none"; return; }
+	$("principles").innerHTML = list.map(function (item) {
+		return '<div class="p"><b>' + esc(item.name) + '</b><span>' + esc(item.desc) + '</span></div>';
+	}).join("");
+}
+
+function timelineRow(item) {
+	var pair = palette(item.color);
+	var dots = "";
+	for (var i = 1; i <= 5; i++) {
+		dots += '<i' + (i <= item.visibility ? "" : ' class="off"') + '></i>';
+	}
+	var badge = item.manual
+		? '<span class="badge manual">手动补做</span>'
+		: '<span class="badge">自动弹</span>';
+	var meta = [];
+	if (item.muscles) { meta.push('<span>' + esc(item.muscles) + '</span>'); }
+	meta.push('<span class="vis">隐蔽度 ' + dots + '</span>');
+
+	return '<div class="row">'
+		+ '<div class="t">' + esc(item.time) + badge + '</div>'
+		+ '<div class="rail"><i class="dot" style="--c:' + pair[0] + '"></i></div>'
+		+ '<div class="card" style="--c:' + pair[0] + ';--cbg:' + pair[1] + '">'
+		+ '<div class="ch"><span class="cn">' + esc(item.name) + '</span><span class="dose">' + esc(item.dose) + '</span></div>'
+		+ (item.cue ? '<p class="cue">' + esc(item.cue) + '</p>' : '')
+		+ '<div class="meta">' + meta.join("") + '</div>'
+		+ '</div></div>';
+}
+
+// 上午 = 12 点前；下午 = 14 点后；中间留给午休
+function hourOf(item) { return parseInt(item.time.split(":")[0], 10); }
+
+function renderTimeline() {
+	var sections = (PLAN.page || {}).sections || {};
+	var items = PLAN.slots.map(expand);
+
+	var morning = items.filter(function (it) { return hourOf(it) < 12; });
+	var afternoon = items.filter(function (it) { return hourOf(it) >= 14; });
+
+	$("morningTitle").textContent = sections.morning || "上午";
+	$("afternoonTitle").textContent = sections.afternoon || "下午";
+	$("morningList").innerHTML = morning.map(timelineRow).join("");
+	$("afternoonList").innerHTML = afternoon.map(timelineRow).join("");
+}
+
+function renderBreak() {
+	var brk = (PLAN.page || {}).break;
+	if (!brk) { $("breakSection").style.display = "none"; return; }
+	$("breakTitle").textContent = brk.title || "休息";
+	$("breakBody").innerHTML = '<strong>' + esc(brk.time) + ' ' + esc(brk.heading) + '</strong>'
+		+ '<span>' + esc(brk.desc) + '</span>';
+}
+
+// 分步说明按动作首次出现顺序列出，同一动作只出现一次
+function renderHowto() {
+	var page = (PLAN.page || {});
+	$("howtoTitle").textContent = page.howtoTitle || "动作分步说明";
+
+	var seen = {};
+	var ordered = [];
+	PLAN.slots.forEach(function (slot) {
+		var item = expand(slot);
+		if (seen[item.name]) { return; }
+		seen[item.name] = true;
+		ordered.push(item);
+	});
+
+	$("howtoList").innerHTML = ordered.map(function (item, index) {
+		var pair = palette(item.color);
+		var num = ("0" + (index + 1)).slice(-2);
+		var steps = item.steps.map(function (step) { return "<li>" + esc(step) + "</li>"; }).join("");
+		return '<article class="ht" style="--c:' + pair[0] + ';--cbg:' + pair[1] + '">'
+			+ '<div class="hth"><span class="htn">' + num + '</span>'
+			+ '<span class="htname">' + esc(item.name) + '</span>'
+			+ (item.doseFull ? '<span class="dose">' + esc(item.doseFull) + '</span>' : '')
+			+ '</div>'
+			+ '<ol class="steps">' + steps + '</ol>'
+			+ (item.trap ? '<div class="trap"><b>容易做错 ——</b>' + esc(item.trap) + '</div>' : '')
+			+ '</article>';
+	}).join("");
+}
+
+function renderPanels() {
+	var page = (PLAN.page || {});
+	var panels = page.panels || [];
+	if (!panels.length) { $("panelsSection").style.display = "none"; return; }
+	$("panelsTitle").textContent = page.panelsTitle || "避坑 · 与专项补充";
+	$("panels").innerHTML = panels.map(function (panel) {
+		var items = (panel.items || []).map(function (item) {
+			return '<li><b>' + esc(item.bold) + '</b> — ' + esc(item.text) + '</li>';
+		}).join("");
+		return '<div class="panel"><h3>' + esc(panel.title) + '</h3><ul>' + items + '</ul>'
+			+ (panel.note ? '<p class="note">' + esc(panel.note) + '</p>' : '')
+			+ '</div>';
+	}).join("");
+	$("warning").textContent = page.warning || "";
+}
+
+// ---------------------------------------------------------------- 服务交互
+
+function toast(message, ok) {
+	var box = $("toast");
+	box.textContent = message;
+	box.className = "toast show " + (ok ? "ok" : "err");
+	clearTimeout(box._timer);
+	box._timer = setTimeout(function () { box.className = "toast"; }, 4000);
+}
+
+function api(path) {
+	return fetch(API + path, { method: "POST" })
+		.then(function (res) { return res.json(); })
+		.then(function (data) {
+			if (!data.ok) { throw new Error(data.error || "操作失败"); }
+			return data;
+		});
+}
+
+function renderStatus(data) {
+	$("svcBar").className = "svc on";
+	var paused = data.pausedUntil && new Date(data.pausedUntil) > new Date();
+
+	$("svcText").innerHTML = "<b>服务运行中</b> —— "
+		+ (paused ? "已暂停到 " + data.pausedUntil.slice(11, 16) : "提醒功能已启用");
+	$("svcMeta").innerHTML = "端口 " + esc(data.port) + "<br>" + esc(data.serverTime);
+	$("btnPause").disabled = !!paused;
+	$("btnResume").disabled = !paused;
+
+	var list = $("slotList");
+	list.innerHTML = "";
+	data.slots.forEach(function (slot) {
+		var wrap = document.createElement("div");
+		wrap.className = "slot" + (slot.manual ? " manual" : "") + (slot.off ? " off" : "");
+
+		var hit = document.createElement("button");
+		hit.className = "hit";
+		hit.title = "点击弹出「" + slot.name + "」的提醒框";
+		hit.innerHTML = '<span class="s"></span><span class="st">' + esc(slot.time) + '</span>'
+			+ '<span>' + esc(slot.name) + '</span>'
+			+ '<span class="tag">' + (slot.manual ? "手动" : "自动") + '</span>';
+		hit.onclick = function () {
+			api("/api/fire?id=" + slot.id)
+				.then(function (res) { toast(res.message, true); })
+				.catch(function (err) { toast(err.message, false); });
+		};
+
+		var tg = document.createElement("button");
+		tg.className = "tg" + (slot.off ? "" : " on");
+		tg.textContent = slot.off ? "○" : "●";
+		tg.title = slot.off ? "已关闭，点击开启" : "点击永久关闭这个环节";
+		tg.onclick = function () {
+			api("/api/" + (slot.off ? "enable" : "disable") + "?id=" + slot.id)
+				.then(function (res) { toast(res.message, true); refresh(); })
+				.catch(function (err) { toast(err.message, false); });
+		};
+
+		wrap.appendChild(hit);
+		wrap.appendChild(tg);
+		list.appendChild(wrap);
+	});
+}
+
+function offline() {
+	$("svcBar").className = "svc off";
+	$("svcText").innerHTML = "<b>服务未运行</b> —— 当前不会有任何提醒弹出";
+	$("svcMeta").innerHTML = "启动命令<br>service.py start";
+	$("btnPause").disabled = true;
+	$("btnResume").disabled = true;
+	$("slotList").innerHTML = "";
+}
+
+function refresh() {
+	return fetch(API + "/api/status")
+		.then(function (res) { return res.json(); })
+		.then(renderStatus)
+		.catch(offline);
+}
+
+$("btnPause").onclick = function () {
+	api("/api/pause").then(function (res) { toast(res.message, true); refresh(); })
+		.catch(function (err) { toast(err.message, false); });
+};
+$("btnResume").onclick = function () {
+	api("/api/resume").then(function (res) { toast(res.message, true); refresh(); })
+		.catch(function (err) { toast(err.message, false); });
+};
+
+// ---------------------------------------------------------------- 启动
+
+function boot(data) {
+	PLAN = data;
+	document.title = data.title || document.title;
+	renderHeader();
+	renderPrinciples();
+	renderTimeline();
+	renderBreak();
+	renderHowto();
+	renderPanels();
+	refresh();
+	setInterval(refresh, 30000);
+}
+
+if (PLAN) {
+	boot(PLAN);
+} else {
+	// 以 file:// 打开时没有注入数据，向服务要一份
+	fetch(API + "/api/plan")
+		.then(function (res) { return res.json(); })
+		.then(function (data) {
+			if (!data.ok) { throw new Error(data.error || "读取计划失败"); }
+			boot(data.plan);
+		})
+		.catch(offline);
+}
+</script>
+</body>
+</html>

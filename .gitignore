@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 用户运行时产生的文件（通常在自己的配置目录里，这里只是兜底）
+state.json
+service.json
+fired.json
+service.log

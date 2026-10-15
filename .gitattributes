@@ -1,0 +1,7 @@
+# 统一换行处理，保证跨平台 clone 下来格式正确
+* text=auto eol=lf
+
+# PowerShell 与批处理对 CRLF 更友好（且 bat 必须 CRLF，否则多行语句会被拆坏）
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
