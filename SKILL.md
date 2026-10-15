@@ -8,7 +8,7 @@ agent_created: true
 
 ## 概述
 
-（项目展示名「搬砖私教」，仓库 <https://gitee.com/vnimy/scheduled-desktop-reminder>。技术名仍为 `scheduled-desktop-reminder`。）
+（项目展示名「搬砖私教」，仓库 <https://gitee.com/vnimy/desk-coach>。技能目录名与技术标识仍为 `scheduled-desktop-reminder`，不要改动 —— 计划任务与清理脚本都指向该路径。）
 
 把一份「提醒计划」装成本机的系统级定时任务，到点弹出可读的完整操作说明。全程离线，不依赖任何在线链路。
 

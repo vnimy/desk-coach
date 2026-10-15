@@ -83,15 +83,21 @@
 
 ### 安装
 
-把本目录放到技能目录下：
+克隆或下载本仓库，然后把它放进技能目录。**注意技能目录名要保持 `scheduled-desktop-reminder`**
+（技能靠目录名识别，所以你 clone 下来的 `desk-coach` 目录需要改名）：
 
 ```bash
+git clone https://gitee.com/vnimy/desk-coach.git
+mv desk-coach scheduled-desktop-reminder
+
 # 用户级（所有项目可用）
 cp -r scheduled-desktop-reminder ~/.workbuddy/skills/
 
 # 或项目级
 cp -r scheduled-desktop-reminder <项目>/.workbuddy/skills/
 ```
+
+> `desk-coach` 是项目名（展示用），`scheduled-desktop-reminder` 是技能要用的目录名。两者不一致是刻意的：仓库名负责好记好看，目录名要跟技能声明保持一致。
 
 ### 配置
 
@@ -216,8 +222,10 @@ python scripts/reminder.py uninstall --name MyReminder        # 卸载
 
 ## 目录结构
 
+仓库名是 `desk-coach`，但放进技能目录后需要叫 `scheduled-desktop-reminder`（原因见「安装」）：
+
 ```
-scheduled-desktop-reminder/
+desk-coach/  （技能目录里则是 scheduled-desktop-reminder/）
 ├── SKILL.md                        技能说明（供 AI 读取的工作流）
 ├── README.md                       本文件
 ├── scripts/
@@ -229,7 +237,7 @@ scheduled-desktop-reminder/
 │   ├── cleanup.ps1                 系统残留清理（安装时复制一份到用户目录）
 │   └── plan.example.json           完整示例计划（11 个时间点）
 └── references/
-    ├── plan-schema.md              字段规范 + 24 条踩坑清单
+    ├── plan-schema.md              字段规范 + 26 条踩坑清单
     ├── service.md                  服务架构与排查
     └── training-design.md          训练内容编排方法论
 ```
@@ -324,9 +332,14 @@ python scripts/service.py cleanup --dry-run            # 先预演，看会删�
 > 因为卸载最容易被忽略的时间点是「你先删了技能目录、后来才想起卸载」。这时脚本已经没有了，系统里注册的计划任务就成了孤儿——**每次开机登录都会尝试启动一个不存在的脚本而报错**。
 > 所以清理能力在安装时就复制了一份到你的配置目录，它不依赖技能是否还在。清理脚本按「任务动作里记录的脚本路径」来识别，所以哪怕技能目录已经删除，它照样能找到并清理干净。
 
-**为什么仓库地址是英文的？**
+**为什么仓库叫 `desk-coach`，技能目录却要叫 `scheduled-desktop-reminder`？**
 
-中文名「搬砖私教」放在标题和描述里做展示，但 URL 路径保持 `scheduled-desktop-reminder` —— 中文路径会被转成 `%E6%90%AC...` 这样的编码，复制分享、写进脚本时都容易出问题。
+两者分工不同：
+
+- **仓库名 `desk-coach`** —— 对外展示，好记、有画面感（desk=工位，coach=教练）
+- **技能目录名 `scheduled-desktop-reminder`** —— 对内使用，必须与 `SKILL.md` 里声明的技能名一致，技能系统靠它识别；系统里的计划任务、清理脚本也都指向这个路径
+
+所以 clone 下来后要改个名再放进技能目录，见上方「安装」。仓库名可以随喜好改，技能目录名不要动 —— 改了会让已注册的计划任务失联。
 
 ## 许可
 
