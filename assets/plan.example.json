@@ -13,9 +13,9 @@
 	"ui": {
 		"ok": "知道了",
 		"trap": "易错点：",
-		"footer": "左下角「日程表」不会关掉本窗口；右下角 ▾ 可暂停本日全部或关闭本环节",
 		"schedule": "日程表",
 		"scheduleFailed": "打开失败，请先启动服务",
+		"scheduleOpened": "已打开日程表",
 		"pauseToday": "暂停本日所有提醒",
 		"paused": "已暂停本日所有提醒（窗口保持打开）",
 		"pauseFailed": "暂停失败，请检查配置",
